@@ -6,6 +6,15 @@ def card_value(card):
     else:
         return int(card)
 
+def compute_total(player_values):
+    total = sum(player_values)
+    if 11 in player_values and total > 21:
+        total -= 10
+    if 11 in player_values:
+        return f"{total}/{total - 10}" if total != total - 10 else f"{total}"
+    else:
+        return f"{total}"
+
 def get_strategy(player_cards, dealer_card):
     player_values = [card_value(card) for card in player_cards]
     total = sum(player_values)
@@ -61,6 +70,9 @@ def main():
             player_input = input("Enter your cards (separated by spaces, use K, Q, J, A for face cards): ")
             player_cards = player_input.split()
             dealer_card = input("Enter the dealer's up card (use K, Q, J, A for face cards): ")
+            player_values = [card_value(card) for card in player_cards]
+            total_value = compute_total(player_values)
+            print(f"Total value of your cards: {total_value}")
             strategy = get_strategy(player_cards, dealer_card)
             print(f"Recommended strategy: {strategy}")
         except ValueError:
