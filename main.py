@@ -10,30 +10,36 @@ def compute_total(player_values):
     total = sum(player_values)
     if 11 in player_values and total > 21:
         total -= 10
+    return total
+
+def compute_totals(player_values):
+    total = sum(player_values)
     if 11 in player_values:
-        return f"{total}/{total - 10}" if total != total - 10 else f"{total}"
-    else:
-        return f"{total}"
+        return total, total - 10
+    return total, total
+
+def should_split(pair_card, dealer_upcard):
+    if pair_card in [8, 11]:
+        return True
+    if pair_card in [2, 3, 7] and dealer_upcard in [2, 3, 4, 5, 6, 7]:
+        return True
+    if pair_card == 6 and dealer_upcard in [2, 3, 4, 5, 6]:
+        return True
+    if pair_card == 9 and dealer_upcard in [2, 3, 4, 5, 6, 8, 9]:
+        return True
+    return False
 
 def get_strategy(player_cards, dealer_card):
     player_values = [card_value(card) for card in player_cards]
-    total = sum(player_values)
+    total, soft_total = compute_totals(player_values)
     dealer_upcard = card_value(dealer_card)
 
     # Check for pair splitting
     if len(player_values) == 2 and player_values[0] == player_values[1]:
         pair_card = player_values[0]
-        if pair_card in [8, 11]:
+        if should_split(pair_card, dealer_upcard):
             return "Split"
-        elif pair_card in [2, 3, 7] and dealer_upcard in [2, 3, 4, 5, 6, 7]:
-            return "Split"
-        elif pair_card == 6 and dealer_upcard in [2, 3, 4, 5, 6]:
-            return "Split"
-        elif pair_card == 9 and dealer_upcard in [2, 3, 4, 5, 6, 8, 9]:
-            return "Split"
-        else:
-            return get_strategy([pair_card * 2], dealer_upcard)
-    
+
     # Hard totals
     if total >= 17:
         return "Stand"
@@ -47,12 +53,9 @@ def get_strategy(player_cards, dealer_card):
         return "Double Down"
     elif total == 9 and dealer_upcard in [3, 4, 5, 6]:
         return "Double Down"
-    else:
-        return "Hit"
 
     # Soft totals (Aces)
     if 11 in player_values:
-        soft_total = total - 10
         if soft_total >= 8:
             return "Stand"
         elif soft_total == 7 and dealer_upcard in [2, 7, 8]:
@@ -63,6 +66,8 @@ def get_strategy(player_cards, dealer_card):
             return "Double Down"
         else:
             return "Hit"
+
+    return "Hit"
 
 def main():
     while True:
